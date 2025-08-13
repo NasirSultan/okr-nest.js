@@ -2,9 +2,10 @@
 import { Module } from '@nestjs/common';
 import { CreateObjectiveService } from './create-objective.service';
 import { CreateObjectiveController } from './create-objective.controller';
+import { PrismaService } from '../lib/prisma/prisma.service';
 
 @Module({
-  providers: [CreateObjectiveService],
   controllers: [CreateObjectiveController],
+  providers: [CreateObjectiveService, PrismaService],
 })
 export class CreateObjectiveModule {}

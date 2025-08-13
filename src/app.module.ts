@@ -4,13 +4,17 @@ import { RoleModule } from './role/role.module';  // <-- import RoleModule
 import { IndustryModule } from './industry/industry.module';
 import { UserRoleModule } from './user-role/user-role.module';
 import { CreateObjectiveModule } from './create-objective/create-objective.module';
+import { CreateKeyResultModule } from './create-key-result/create-key-result.module';
+
+
 @Module({
   imports: [
     GameModule,
-    RoleModule,   // <-- add RoleModule here
-    IndustryModule, // <-- add IndustryModule here
+    RoleModule,  
+    IndustryModule, 
     CreateObjectiveModule, // <-- add CreateObjectiveModule here
-    UserRoleModule, // <-- add UserRoleModule here
+    UserRoleModule, 
+    CreateKeyResultModule, // <-- add CreateKeyResultModule here
   ],
 })
 export class AppModule {}

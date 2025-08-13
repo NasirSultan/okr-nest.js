@@ -1,15 +1,19 @@
-// src/create-objective/create-objective.controller.ts
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { CreateObjectiveService } from './create-objective.service';
 
-@Controller('create-objective')
+@Controller('objectives')
 export class CreateObjectiveController {
   constructor(private readonly createObjectiveService: CreateObjectiveService) {}
 
   @Post('generate')
-  async generate(@Body() body: { strategy: string; role: string; industry: string }) {
-    const { strategy, role, industry } = body;
-    const result = await this.createObjectiveService.generateObjectives(strategy, role, industry);
-    return { objectives: result };
+  async generateObjectives(@Body() body: { strategyId: number; strategy: string; role: string; industry: string }) {
+    const { strategyId, strategy, role, industry } = body;
+    return this.createObjectiveService.generateAndSaveObjectives(strategyId, strategy, role, industry);
+  }
+
+  @Get()
+  async fetchObjectives(@Query('strategyId') strategyId?: string) {
+    const id = strategyId ? parseInt(strategyId, 10) : undefined;
+    return this.createObjectiveService.getObjectives(id);
   }
 }

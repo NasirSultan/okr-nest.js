@@ -56,3 +56,15 @@ model user_role {
 }
 
 
+
+
+
+model Objective {
+  id          Int    @id @default(autoincrement())
+  strategy_id Int
+  title       String @db.VarChar(200)
+  description String?
+  difficulty  Int    @default(1)
+
+  @@map("objectives")
+}
