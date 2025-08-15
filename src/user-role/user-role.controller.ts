@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param } from '@nestjs/common';
 import { UserRoleService } from './user-role.service';
 
 @Controller('user-role')
@@ -13,5 +13,9 @@ export class UserRoleController {
   @Get('list')
   async listAssignments() {
     return this.userRoleService.listAssignments();
+  }
+    @Get(':user_id')
+  async getAssignmentsByUser(@Param('user_id') user_id: string) {
+    return this.userRoleService.getAssignmentsByUser(user_id);
   }
 }

@@ -5,11 +5,11 @@ import { okrPrompt } from '../lib/prompt/createObjective';
 
 @Injectable()
 export class CreateObjectiveService {
-  private fetchCount = 0; // global counter for getObjectives
+  // Track fetch counts per strategy ID
+  private fetchCounts: Map<number, number> = new Map();
 
   constructor(private prisma: PrismaService) {}
 
-  // Generate OKRs and save them in the database
   async generateAndSaveObjectives(
     strategyId: number,
     strategy: string,
@@ -32,7 +32,7 @@ export class CreateObjectiveService {
         const data = JSON.parse(text);
         objectivesData = data.okrs || [];
       } catch (err) {
-        // continue to retry
+        // ignore parse error
       }
     }
 
@@ -40,12 +40,10 @@ export class CreateObjectiveService {
       return { error: 'Failed to generate OKRs after 3 attempts' };
     }
 
-    // Delete old objectives if strategy already exists
     await this.prisma.objective.deleteMany({
       where: { strategy_id: strategyId },
     });
 
-    // Insert new objectives
     const createData = objectivesData.map((title) => ({
       strategy_id: strategyId,
       title,
@@ -55,7 +53,6 @@ export class CreateObjectiveService {
       data: createData,
     });
 
-    // Fetch the newly created objectives to return
     const savedObjectives = await this.prisma.objective.findMany({
       where: { strategy_id: strategyId },
       orderBy: { id: 'asc' },
@@ -64,25 +61,24 @@ export class CreateObjectiveService {
     return { message: 'Objectives saved', objectives: savedObjectives };
   }
 
-  // Fetch objectives with a global limit of 3 times
   async getObjectives(strategyId?: number) {
-    if (this.fetchCount >= 3) {
-      return { error: 'Fetch limit reached (3 times only)' };
-    }
-
-    this.fetchCount++; // increment global fetch counter
-
-    const query = {
-      orderBy: { id: 'asc' as const },
-    };
-
-    if (strategyId) {
+    if (!strategyId) {
+      // no strategyId, return all objectives without limit
       return this.prisma.objective.findMany({
-        ...query,
-        where: { strategy_id: strategyId },
+        orderBy: { id: 'asc' },
       });
     }
 
-    return this.prisma.objective.findMany(query);
+    const count = this.fetchCounts.get(strategyId) || 0;
+    if (count >= 3) {
+      return { error: 'Fetch limit reached (3 times only) for this strategy' };
+    }
+
+    this.fetchCounts.set(strategyId, count + 1);
+
+    return this.prisma.objective.findMany({
+      where: { strategy_id: strategyId },
+      orderBy: { id: 'asc' },
+    });
   }
 }

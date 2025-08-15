@@ -5,8 +5,9 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL") // notice camelCase 'directUrl'
+  directUrl = env("DIRECT_URL") 
 }
+
 
 model User {
   id        String   @id @default(uuid())
@@ -68,3 +69,42 @@ model Objective {
 
   @@map("objectives")
 }
+
+model KeyResult {
+  id          Int      @id @default(autoincrement())
+  objectiveId Int
+  strategyId  Int?     // <- note the `?` makes it optional
+  text        String
+  expiresAt   DateTime @default(dbgenerated("NOW() + INTERVAL '1 day'"))
+}
+
+
+model KeywordBaseInnovative {
+  id                Int      @id @default(autoincrement())
+  strategy_id       Int
+  key_result        String
+  first_innovative  String
+  second_innovative String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model SoloScore {
+  id                  Int      @id @default(autoincrement())
+  userId              Int
+  score               Int
+  scor                Int?     // new optional field
+  percentage          Int
+  alignmentStrategy   Int      
+  objectiveClarity    Int      
+  keyResultQuality    Int     
+  initiativeRelevance Int     
+  challengeAdoption   Int      
+  badge               String?  // optional, e.g., "Gold Navigator"
+  trophy              String?  // optional, e.g., "Clarity Trophy"
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+

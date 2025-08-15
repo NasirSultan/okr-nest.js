@@ -5,9 +5,16 @@ import { CreateKeyResultService } from './create-key-result.service';
 export class CreateKeyResultController {
   constructor(private readonly krService: CreateKeyResultService) {}
 
-  @Post()
-  async create(@Body() body: { strategy: string; objective: string; role: string }) {
-    const { strategy, objective, role } = body;
-    return await this.krService.generateKeyResults(strategy, objective, role);
+  @Post('/batch')
+  async createBatch(@Body() body: { strategy: string; objectives: string[]; role: string }) {
+    const { strategy, objectives, role } = body;
+
+    if (!objectives || objectives.length !== 8) {
+      return {
+        error: 'You must provide exactly 8 objectives'
+      };
+    }
+
+    return await this.krService.generateKRsForObjectives(strategy, objectives, role);
   }
 }
